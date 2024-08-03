@@ -26,11 +26,11 @@ const performanceSchema = new mongoose.Schema({
                 type: String,
                 required: true,
             },
-            next:{
-                type:Object,
-                required:true,
-                default:undefined
-            },
+            // next:{
+            //     type:Object,
+            //     required:true,
+            //     default:undefined
+            // },
             isCorrect: {
                 type: Boolean,
                 default: false,

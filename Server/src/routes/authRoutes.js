@@ -20,166 +20,166 @@ app.use(bodyParser.json());
 // console.log(process.env.SALT_ROUNDS);
 
 
-// const signUpQue = [];
-// let signUpIsLocked = false;
-// let currentSignUp = [];
+const signUpQue = [];
+let signUpIsLocked = false;
+let currentSignUp = [];
 
-// router.post('/signup', async (req, res) => {
+router.post('/signup', async (req, res) => {
 
-//     res.clearCookie("G_ENABLED_IDPS");
-//     const userReq = req.body
-//     if (signUpIsLocked) {
-//             signUpQue.push(userReq);
-//     }
-//     else{
-//         signUpIsLocked = true;
-//         currentSignUp.push(userReq);
-//         const result = await signUp(userReq);
-//         res.json(result);
-//     }
+    res.clearCookie("G_ENABLED_IDPS");
+    const userReq = req.body
+    if (signUpIsLocked) {
+            signUpQue.push(userReq);
+    }
+    else{
+        signUpIsLocked = true;
+        currentSignUp.push(userReq);
+        const result = await signUp(userReq);
+        res.json(result);
+    }
 
-//     while (signUpQue.length > 0) {
-//         const next_data = signUpQue.shift();
-//         const result_qued = await signUp(next_data);
-//         res.json(result_qued);
-//     }
+    while (signUpQue.length > 0) {
+        const next_data = signUpQue.shift();
+        const result_qued = await signUp(next_data);
+        res.json(result_qued);
+    }
 
-//     signUpIsLocked = false;
+    signUpIsLocked = false;
 
     
-//     // console.log("request body: ", req.body);
-//     async function signUp(userData){
-//         try {
-//             // const userData = userRegistrationSchema.parse(req.body);
-//             const existingUser = await User.findOne({ username: userData.lName, email: userData.lMail });
-//             const existingTeam = await Team.findOne({ name: userData.teamName });
+    // console.log("request body: ", req.body);
+    async function signUp(userData){
+        try {
+            // const userData = userRegistrationSchema.parse(req.body);
+            const existingUser = await User.findOne({ username: userData.lName, email: userData.lMail });
+            const existingTeam = await Team.findOne({ name: userData.teamName });
     
-//             if (Object.values(userData).includes("")) {
-//                 return { err: "Fill all details" };
-//             }
+            if (Object.values(userData).includes("")) {
+                return { err: "Fill all details" };
+            }
     
-//             else if (existingUser) {
-//                 return { err: 'Username already has an account associated with it, please login' };
-//             }
+            else if (existingUser) {
+                return { err: 'Username already has an account associated with it, please login' };
+            }
     
-//             else if (existingTeam) {
-//                 return { err: 'Team is already there, Please Login' };
-//             }
+            else if (existingTeam) {
+                return { err: 'Team is already there, Please Login' };
+            }
             
-//             else{
-//                 const hash = await bcrypt.hash(userData.lPassword,process.env.SALT_ROUNDS);
+            else{
+                const hash = await bcrypt.hash(userData.lPassword,10);
 
-//                 // Time at which account is created with value crypic started as false
-//                 const currentTime = new Date();
+                // Time at which account is created with value crypic started as false
+                const currentTime = new Date();
 
-//                 // const hash = await bcrypt.hash(userData.lPassword,10);
-//                 const newUser = await User.create({
-//                     username: userData.lName,
-//                     email: userData.lMail,
-//                     password: hash,
-//                     role: "team_leader", 
-//                     team: userData.teamName,
-//                 });
+                // const hash = await bcrypt.hash(userData.lPassword,10);
+                const newUser = await User.create({
+                    username: userData.lName,
+                    email: userData.lMail,
+                    password: hash,
+                    role: "team_leader", 
+                    team: userData.teamName,
+                });
         
-//                 const newTeam = await Team.create({
-//                     name: userData.teamName,
-//                     leader: newUser
-//                 });
+                const newTeam = await Team.create({
+                    name: userData.teamName,
+                    leader: newUser
+                });
         
-//                 await Performance.create({
-//                     team: newTeam._id,
-//                     score: 0,
-//                     answers:[{
-//                         question:"first question",
-//                         answer:"yet to be answered",
-//                         isCorrect:false,
-//                         crypticStarted:false,
-//                         submitTime:currentTime,
-//                         timeTaken:currentTime
-//                     }]
-//                 });
+                await Performance.create({
+                    team: newTeam._id,
+                    score: 0,
+                    answers:[{
+                        question:"first question",
+                        answer:"yet to be answered",
+                        isCorrect:false,
+                        crypticStarted:false,
+                        submitTime:currentTime,
+                        timeTaken:currentTime
+                    }]
+                });
 
         
-//                 await sendMail(userData.lName, userData.lMail);
+                await sendMail(userData.lName, userData.lMail);
     
-//                 return { redirect: 'login' };
+                return { redirect: 'login' };
     
-//             }
+            }
     
-//         }
-//         catch (error) {
-//             console.error('Signup error:', error);
-//             res.status(400).json({ error: error.errors || 'Invalid data' });
-//         }
-//     }
-// });
+        }
+        catch (error) {
+            console.error('Signup error:', error);
+            res.status(400).json({ error: error.errors || 'Invalid data' });
+        }
+    }
+});
 
-// const registerQue = [];
-// let registerIsLocked = false;
-// let currentRegister = [];
-// router.post('/register',authenticateToken, async(req,res)=>{
-//     const memberData = req.body;
-//     if (registerIsLocked) {
-//             registerQue.push(memberData);
-//             console.log("reques qued:",memberData.username);
-//     }
-//     else{
-//         registerIsLocked = true;
-//         currentRegister.push(memberData);
-//         console.log("request accepted:",memberData.username);
-//         const result = await register(memberData);
-//         res.json(result);
-//     }
+const registerQue = [];
+let registerIsLocked = false;
+let currentRegister = [];
+router.post('/register',authenticateToken, async(req,res)=>{
+    const memberData = req.body;
+    if (registerIsLocked) {
+            registerQue.push(memberData);
+            console.log("reques qued:",memberData.username);
+    }
+    else{
+        registerIsLocked = true;
+        currentRegister.push(memberData);
+        console.log("request accepted:",memberData.username);
+        const result = await register(memberData);
+        res.json(result);
+    }
 
-//     while (registerQue.length > 0) {
-//         const next_data = registerQue.shift();
-//         const result_qued = await register(next_data);
-//         res.json(result_qued);
-//     }
+    while (registerQue.length > 0) {
+        const next_data = registerQue.shift();
+        const result_qued = await register(next_data);
+        res.json(result_qued);
+    }
 
-//     registerIsLocked = false;
+    registerIsLocked = false;
 
 
-//     async function register(data){
-//         try{
-//             const teamLeader = await User.findOne({username:req.user._id, role:"team_leader"});
-//             const teamData = await Team.findOne({name:req.user.team});
-//             const teamStrength = teamData.members.length;
-//             const existingMember = await User.findOne({username:data.username, email:data.email});
+    async function register(data){
+        try{
+            const teamLeader = await User.findOne({username:req.user._id, role:"team_leader"});
+            const teamData = await Team.findOne({name:req.user.team});
+            const teamStrength = teamData.members.length;
+            const existingMember = await User.findOne({username:data.username, email:data.email});
     
-//             if(teamStrength >= 5){
-//                 return{err:"Team is full!"};
-//             }
+            if(teamStrength >= 3){
+                return{err:"Team is full!"};
+            }
     
-//             else if(existingMember){
-//                 return{err:"User is already in a team"};
-//             }
-//             else{
-//                 const newUser = await User.create({
-//                     username: data.username,
-//                     password: teamLeader.password,
-//                     email: data.email,
-//                     role: "team_member", 
-//                     team: req.user.team,
-//                 });
+            else if(existingMember){
+                return{err:"User is already in a team"};
+            }
+            else{
+                const newUser = await User.create({
+                    username: data.username,
+                    password: teamLeader.password,
+                    email: data.email,
+                    role: "team_member", 
+                    team: req.user.team,
+                });
         
-//                 const updatedTeam = await Team.findOneAndUpdate(
-//                     { name: req.user.team },
-//                     { $push: { members: newUser._id } },
-//                     { new: true, upsert: true }
-//                 );
+                const updatedTeam = await Team.findOneAndUpdate(
+                    { name: req.user.team },
+                    { $push: { members: newUser._id } },
+                    { new: true, upsert: true }
+                );
         
-//                 await sendMail(newUser.username, newUser.email, newUser.team);
+                await sendMail(newUser.username, newUser.email, newUser.team);
     
-//                 return{message:"Member Added Successfully"}
-//             }
+                return{message:"Member Added Successfully"}
+            }
     
-//         }catch(err){
-//             console.log(err);
-//         }
-//     }
+        }catch(err){
+            console.log(err);
+        }
+    }
     
-// })
+})
 
 const loginQue = [];
 let loginIsLocked = false;

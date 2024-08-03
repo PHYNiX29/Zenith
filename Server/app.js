@@ -30,7 +30,7 @@ app.get('/ip', (request, response) => response.send(request.ip));
 app.get('/x-forwarded-for', (request, response) => response.send(request.headers['x-forwarded-for']));
 app.use(rateLimiter);
 
-const NUM_INSTANCES = 5;
+const NUM_INSTANCES = 2;
 const START_PORT = 8000;
 
 app.use(logoutRoute);
@@ -61,6 +61,7 @@ app.get("/",(req,res)=>{
 });
 
 app.get("/login",(req,res)=>{
+    console.log(`Request received on port ${req.socket.localPort}`);
     const accessToken = req.cookies.accessToken;
     console.log(req.ip);
     if (accessToken) {
@@ -72,12 +73,12 @@ app.get("/login",(req,res)=>{
                 req.user = user;
                 const username = user._id;
                 console.log(req.ip + " " + username);
-                // if(req.user.role === "team_leader"){
-                //     res.redirect("/home");
-                // }
-                // else if(req.user.role === "team_member"){
-                //     res.redirect("/crypt");
-                // }
+                if(req.user.role === "team_leader"){
+                    res.redirect("/home");
+                }
+                else if(req.user.role === "team_member"){
+                    res.redirect("/crypt");
+                }
                 res.redirect("/home");
             }
 
@@ -87,25 +88,67 @@ app.get("/login",(req,res)=>{
 
     }});
 
-// app.get("/leaderBoard", (req,res)=>{
-//     console.log(req.ip +" leaderBoard");
-//     res.sendFile(__public + "/views/leaderBoard.html");
-// });Y
+app.get("/signup",(req,res)=>{
+    console.log(`Request received on port ${req.socket.localPort}`);
+    const accessToken = req.cookies.accessToken;
+    console.log(req.ip);
+    if (accessToken) {
+        jwt.verify(accessToken, process.env.SECRET_KEY, (err, user) => {
+            if (err) {
+                res.sendFile(__public + "/views/sign_up.html");
+            }
+            else{
+                req.user = user;
+                const username = user._id;
+                console.log(req.ip + " " + username);
+                if(req.user.role === "team_leader"){
+                    res.redirect("/home");
+                }
+                else if(req.user.role === "team_member"){
+                    res.redirect("/crypt");
+                }
+                res.redirect("/home");
+            }
+
+        });
+    }else{
+        res.sendFile(__public + "/views/sign_up.html");
+}});
+
+app.get("/register",authenticateToken, (req,res)=>{
+    console.log(`Request received on port ${req.socket.localPort}`);
+    if(req.user.role === "team_leader"){
+        res.sendFile(__public + "/views/register.html");
+        const username = req.user._id;
+        console.log(req.ip + " " + username+" home");
+    }else{
+        res.sendStatus(403).json({error:"unauthorized"});
+    }
+});
+
+app.get("/leaderBoard", (req,res)=>{
+    console.log(`Request received on port ${req.socket.localPort}`);
+    console.log(req.ip +" leaderBoard");
+    res.sendFile(__public + "/views/leaderBoard.html");
+});
 
 app.get("/members",authenticateToken, (req,res)=>{
+    console.log(`Request received on port ${req.socket.localPort}`);
     const username = req.user._id;
     console.log(req.ip + " " + username +" members");
     res.sendFile(__public + "/views/members.html");
 });
 
 app.get("/contact",authenticateToken, (req,res)=>{
+    console.log(`Request received on port ${req.socket.localPort}`);
     const username = req.user._id;
     console.log(req.ip + " " + username + "contact");
     res.sendFile(__public + "/views/contact.html");});
 
 app.get("/home",authenticateToken, (req,res)=>{
+    console.log(`Request received on port ${req.socket.localPort}`);
     if(req.user.role === "team_leader"){
-        res.sendFile(__public + "/views/home.html");
+        res.sendFile(__public + "/views/home_leader.html");
         const username = req.user._id;
         console.log(req.ip + " " + username+" home");
     }else{
@@ -123,6 +166,8 @@ app.get("/home",authenticateToken, (req,res)=>{
 app.get("/crypt",authenticateToken, (req,res)=>{
     const username = req.user._id;
     console.log(req.ip + " " + username+" crypt");
+    console.log(`Request received on port ${req.socket.localPort}`);
+
     res.sendFile(__public + "/views/cryptic.html");
 });
 
@@ -138,6 +183,7 @@ app.use(nameRoute);
 app.use(crypticRoute);
 app.use(leaderBoardRoute);
 
+
 function startServers() {
     for (let i = 0; i < NUM_INSTANCES; i++) {
          const port = START_PORT + i;
@@ -146,6 +192,7 @@ function startServers() {
         });
      }
 }
+
  if (process.env.NODE_APP_INSTANCE !== undefined) {
      startServers();
  } else {

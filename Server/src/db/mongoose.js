@@ -5,8 +5,7 @@ dotenv.config();
 
 const connectDB = async () => {
   try {
-    const mongoURI =
-    process.env.MONGODB_URI;
+    const mongoURI ="mongodb+srv://vibhumilis:qIopetvognFnwc8k@cluster0.iomc16y.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
     mongoose.connect(mongoURI);
 
     const connection = mongoose.connection;
