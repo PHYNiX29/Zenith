@@ -10,7 +10,7 @@ async function sendMail(username,mail){
             // user : process.env.EMAIL || "vp2005rawal@gmail,com",
             // pass: process.env.PASSWORD || "vp2005rawal"
             user : "backslash_sc@thapar.edu", //Add BCS Gmail ID
-            pass: "iqwd aenc yznf fmjl" //BCS Gmail App password
+            pass: process.env.EMAIL_PASSWORD
         }
     }
 

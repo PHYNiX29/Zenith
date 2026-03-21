@@ -17,7 +17,7 @@ export function authenticateToken(req, res, next) {
         return res.status(200).sendFile(__dirname + "/404.html");
     }
 
-    jwt.verify(accessToken, "yourSecretKeyGoesheredmlmfkmvlmdlfkkfbitch" , (err, user) => {
+    jwt.verify(accessToken, process.env.SECRET_KEY , (err, user) => {
         if (err) {
             return res.status(200)
         }
@@ -27,11 +27,11 @@ export function authenticateToken(req, res, next) {
 }
 //prcess
 export function generateJwtToken(payload) {
-    return jwt.sign(payload, "yourSecretKeyGoesheredmlmfkmvlmdlfkkfbitch", { expiresIn: '15h' });
+    return jwt.sign(payload, process.env.SECRET_KEY, { expiresIn: '15h' });
 }
 
 export function generateRefreshToken(payload) {
-    return jwt.sign(payload, "yourSecretKeyGoesheredmlmfkmvlmdlfkkfbitch", { expiresIn: '7d' });
+    return jwt.sign(payload, process.env.SECRET_KEY, { expiresIn: '7d' });
 }
 
 export function authenticateRefreshToken(req, res, next) {
@@ -41,7 +41,7 @@ export function authenticateRefreshToken(req, res, next) {
         return res.status(200);
     }
 
-    jwt.verify(refreshToken, "yourSecretKeyGoesheredmlmfkmvlmdlfkkfbitch", (err, user) => {
+    jwt.verify(refreshToken, process.env.SECRET_KEY, (err, user) => {
         if (err) {
             return res.status(200)
         }
